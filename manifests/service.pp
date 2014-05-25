@@ -23,15 +23,23 @@ class nginx::service(
     running => true,
     absent => false,
     stopped => false,
+    'undef' => undef,
     default => true,
   }
 
+  if $service_ensure == 'undef' {
+    $service_ensure_real = undef
+  } else {
+    $service_ensure_real = $service_ensure
+  }
+
   service { 'nginx':
-    ensure     => $service_ensure,
+    ensure     => $service_ensure_real,
     enable     => $service_enable,
     hasstatus  => true,
     hasrestart => true,
   }
+
   if $configtest_enable == true {
     Service['nginx'] {
       restart => $service_restart,
