@@ -372,7 +372,7 @@ define nginx::resource::location (
         $content_real,
         template('nginx/vhost/location_footer.erb')
       ], ''),
-      order   => $ssl_priority,
+      order   => "$ssl_priority",
     }
   }
 
