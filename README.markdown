@@ -1,8 +1,15 @@
 # NGINX Module
 
+## INSTALLING OR UPGRADING
+** Please note **: This module is currently undergoing some structural
+maintenance. Please take a look at [https://github.com/jfryman/puppet-nginx/blob/master/docs/hiera.md](https://github.com/jfryman/puppet-nginx/blob/master/docs/hiera.md)
+before upgrading or installing Version 0.1.0 or greater.
+
 [![Build Status](https://travis-ci.org/jfryman/puppet-nginx.png)](https://travis-ci.org/jfryman/puppet-nginx)
 
-James Fryman <james@frymanet.com>
+
+* James Fryman <james@frymanet.com>
+* Matthew Haughton <matt@3flex.com.au>
 
 This module manages NGINX configuration.
 
@@ -11,6 +18,7 @@ This module manages NGINX configuration.
 ### Requirements
 
 * Puppet-2.7.0 or later
+* Facter 1.7.0 or later
 * Ruby-1.9.3 or later (Support for Ruby-1.8.7 is not guaranteed. YMMV).
 
 ### Install and bootstrap an NGINX instance
@@ -235,6 +243,19 @@ define web::nginx_ssl_with_redirect (
       }
     }
   }
+}
+```
+
+## Add custom fastcgi_params
+
+```puppet
+nginx::resource::location { "some_root":
+  ensure         => present,
+  location       => '/some/url',
+  fastcgi        => "127.0.0.1:9000",
+  fastcgi_param  => {
+    'APP_ENV' => 'local',
+  },
 }
 ```
 

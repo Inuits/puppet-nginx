@@ -6,8 +6,6 @@ describe 'nginx::resource::mailhost' do
   end
   let :facts do
     {
-      :osfamily        => 'debian',
-      :operatingsystem => 'debian',
       :ipaddress6      => '::',
     }
   end
@@ -27,14 +25,14 @@ describe 'nginx::resource::mailhost' do
 
     describe 'basic assumptions' do
       let :params do default_params end
-      it { should contain_class("nginx::config") }
-      it { should contain_concat("/etc/nginx/conf.mail.d/#{title}.conf").with({
+      it { is_expected.to contain_class("nginx::config") }
+      it { is_expected.to contain_concat("/etc/nginx/conf.mail.d/#{title}.conf").with({
         'owner' => 'root',
         'group' => 'root',
         'mode'  => '0644',
       })}
-      it { should contain_concat__fragment("#{title}-header") }
-      it { should_not contain_concat__fragment("#{title}-ssl") }
+      it { is_expected.to contain_concat__fragment("#{title}-header") }
+      it { is_expected.not_to contain_concat__fragment("#{title}-ssl") }
     end
 
     describe "mailhost template content" do
@@ -139,12 +137,12 @@ describe 'nginx::resource::mailhost' do
           } end
           let :params do default_params.merge({ param[:attr].to_sym => param[:value] }) end
 
-          it { should contain_concat__fragment("#{title}-header") }
+          it { is_expected.to contain_concat__fragment("#{title}-header") }
           it param[:title] do
             lines = subject.resource('concat::fragment', "#{title}-header").send(:parameters)[:content].split("\n")
-            (lines & Array(param[:match])).should == Array(param[:match])
+            expect(lines & Array(param[:match])).to eq(Array(param[:match]))
             Array(param[:notmatch]).each do |item|
-              should contain_concat__fragment("#{title}-header").without_content(item)
+              is_expected.to contain_concat__fragment("#{title}-header").without_content(item)
             end
           end
         end
@@ -193,12 +191,12 @@ describe 'nginx::resource::mailhost' do
           } end
           let :params do default_params.merge({ param[:attr].to_sym => param[:value] }) end
 
-          it { should contain_concat__fragment("#{title}-header") }
+          it { is_expected.to contain_concat__fragment("#{title}-header") }
           it param[:title] do
             lines = subject.resource('concat::fragment', "#{title}-header").send(:parameters)[:content].split("\n")
-            (lines & Array(param[:match])).should == Array(param[:match])
+            expect(lines & Array(param[:match])).to eq(Array(param[:match]))
             Array(param[:notmatch]).each do |item|
-              should contain_concat__fragment("#{title}-header").without_content(item)
+              is_expected.to contain_concat__fragment("#{title}-header").without_content(item)
             end
           end
         end
@@ -290,12 +288,12 @@ describe 'nginx::resource::mailhost' do
           } end
           let :params do default_params.merge({ param[:attr].to_sym => param[:value] }) end
 
-          it { should contain_concat__fragment("#{title}-ssl") }
+          it { is_expected.to contain_concat__fragment("#{title}-ssl") }
           it param[:title] do
             lines = subject.resource('concat::fragment', "#{title}-ssl").send(:parameters)[:content].split("\n")
-            (lines & Array(param[:match])).should == Array(param[:match])
+            expect(lines & Array(param[:match])).to eq(Array(param[:match]))
             Array(param[:notmatch]).each do |item|
-              should contain_concat__fragment("#{title}-ssl").without_content(item)
+              is_expected.to contain_concat__fragment("#{title}-ssl").without_content(item)
             end
           end
         end
@@ -309,7 +307,7 @@ describe 'nginx::resource::mailhost' do
           :ssl_key => 'key',
         }) end
 
-        it { expect { should contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
+        it { expect { is_expected.to contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
       end
 
       context "SSL key missing and ssl => true" do
@@ -318,7 +316,7 @@ describe 'nginx::resource::mailhost' do
           :ssl_cert => 'cert',
         }) end
 
-        it { expect { should contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
+        it { expect { is_expected.to contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
       end
 
       context "SSL cert missing and starttls => 'on'" do
@@ -327,7 +325,7 @@ describe 'nginx::resource::mailhost' do
           :ssl_key  => 'key',
         }) end
 
-        it { expect { should contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
+        it { expect { is_expected.to contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
       end
 
       context "SSL key missing and starttls => 'on'" do
@@ -336,7 +334,7 @@ describe 'nginx::resource::mailhost' do
           :ssl_cert => 'cert',
         }) end
 
-        it { expect { should contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
+        it { expect { is_expected.to contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
       end
 
       context "SSL cert missing and starttls => 'only'" do
@@ -345,7 +343,7 @@ describe 'nginx::resource::mailhost' do
           :ssl_key  => 'key',
         }) end
 
-        it { expect { should contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
+        it { expect { is_expected.to contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
       end
 
       context "SSL key missing and starttls => 'only'" do
@@ -354,7 +352,7 @@ describe 'nginx::resource::mailhost' do
           :ssl_cert => 'cert',
         }) end
 
-        it { expect { should contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
+        it { expect { is_expected.to contain_class('nginx::resource::vhost') }.to raise_error(Puppet::Error, %r{nginx: SSL certificate/key \(ssl_cert/ssl_cert\) and/or SSL Private must be defined and exist on the target system\(s\)}) }
       end
 
       context 'when listen_port != ssl_port' do
@@ -363,7 +361,7 @@ describe 'nginx::resource::mailhost' do
           :ssl_port    => 443,
         }) end
 
-        it { should contain_concat__fragment("#{title}-header") }
+        it { is_expected.to contain_concat__fragment("#{title}-header") }
       end
 
       context 'when listen_port == ssl_port' do
@@ -372,7 +370,7 @@ describe 'nginx::resource::mailhost' do
           :ssl_port    => 80,
         }) end
 
-        it { should_not contain_concat__fragment("#{title}-header") }
+        it { is_expected.not_to contain_concat__fragment("#{title}-header") }
       end
 
       context 'when ssl => true' do
@@ -383,8 +381,8 @@ describe 'nginx::resource::mailhost' do
           :ssl_cert => 'dummy.cert',
         }) end
 
-        it { should contain_concat__fragment("#{title}-header") }
-        it { should contain_concat__fragment("#{title}-ssl") }
+        it { is_expected.to contain_concat__fragment("#{title}-header") }
+        it { is_expected.to contain_concat__fragment("#{title}-ssl") }
       end
 
       context 'when ssl => false' do
@@ -393,8 +391,8 @@ describe 'nginx::resource::mailhost' do
           :ssl    => false,
         }) end
 
-        it { should contain_concat__fragment("#{title}-header") }
-        it { should_not contain_concat__fragment("#{title}-ssl") }
+        it { is_expected.to contain_concat__fragment("#{title}-header") }
+        it { is_expected.not_to contain_concat__fragment("#{title}-ssl") }
       end
     end
   end
