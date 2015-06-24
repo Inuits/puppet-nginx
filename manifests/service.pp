@@ -17,6 +17,8 @@ class nginx::service(
   $configtest_enable = $::nginx::configtest_enable,
   $service_restart   = $::nginx::service_restart,
   $service_ensure    = $::nginx::service_ensure,
+  $service_name      = 'nginx',
+  $service_flags     = undef,
 ) {
 
   $service_enable = $service_ensure ? {
@@ -33,11 +35,26 @@ class nginx::service(
     $service_ensure_real = $service_ensure
   }
 
-  service { 'nginx':
-    ensure     => $service_ensure_real,
-    enable     => $service_enable,
-    hasstatus  => true,
-    hasrestart => true,
+  case $::osfamily {
+    'OpenBSD': {
+      service { 'nginx':
+        ensure     => $service_ensure_real,
+        name       => $service_name,
+        enable     => $service_enable,
+        flags      => $service_flags,
+        hasstatus  => true,
+        hasrestart => true,
+      }
+    }
+    default: {
+      service { 'nginx':
+        ensure     => $service_ensure_real,
+        name       => $service_name,
+        enable     => $service_enable,
+        hasstatus  => true,
+        hasrestart => true,
+      }
+    }
   }
 
   if $configtest_enable == true {

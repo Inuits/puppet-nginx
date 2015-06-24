@@ -62,6 +62,7 @@ class nginx::config(
   $multi_accept                   = 'off',
   $names_hash_bucket_size         = '64',
   $names_hash_max_size            = '512',
+  $nginx_cfg_prepend              = false,
   $proxy_buffers                  = '32 4k',
   $proxy_buffer_size              = '8k',
   $proxy_cache_inactive           = '20m',
@@ -71,7 +72,7 @@ class nginx::config(
   $proxy_cache_path               = false,
   $proxy_connect_timeout          = '90',
   $proxy_headers_hash_bucket_size = '64',
-  $proxy_http_version             = '1.0',
+  $proxy_http_version             = undef,
   $proxy_read_timeout             = '90',
   $proxy_redirect                 = 'off',
   $proxy_send_timeout             = '90',
@@ -93,7 +94,7 @@ class nginx::config(
 ) inherits ::nginx::params {
 
   ### Validations ###
-  if (!is_string($worker_processes)) and (!is_integer($worker_processes)) {
+  if ($worker_processes != 'auto') and (!is_integer($worker_processes)) {
     fail('$worker_processes must be an integer or have value "auto".')
   }
   if (!is_integer($worker_connections)) {
@@ -107,7 +108,9 @@ class nginx::config(
   }
   validate_string($multi_accept)
   validate_array($proxy_set_header)
-  validate_string($proxy_http_version)
+  if ($proxy_http_version != undef) {
+    validate_string($proxy_http_version)
+  }
   validate_bool($confd_purge)
   validate_bool($vhost_purge)
   if ($proxy_cache_path != false) {
@@ -146,6 +149,12 @@ class nginx::config(
   if ($http_cfg_append != false) {
     if !(is_hash($http_cfg_append) or is_array($http_cfg_append)) {
       fail('$http_cfg_append must be either a hash or array')
+    }
+  }
+
+  if ($nginx_cfg_prepend != false) {
+    if !(is_hash($nginx_cfg_prepend) or is_array($nginx_cfg_prepend)) {
+      fail('$nginx_cfg_prepend must be either a hash or array')
     }
   }
 
@@ -200,6 +209,10 @@ class nginx::config(
     ensure => directory,
   }
 
+  file { $log_dir:
+    ensure => directory,
+  }
+
   file {$client_body_temp_path:
     ensure => directory,
     owner  => $daemon_user,
@@ -245,8 +258,7 @@ class nginx::config(
   }
 
   file { "${conf_dir}/conf.d/proxy.conf":
-    ensure  => file,
-    content => template($proxy_conf_template),
+    ensure  => absent,
   }
 
   file { "${conf_dir}/conf.d/default.conf":
